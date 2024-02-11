@@ -51,9 +51,8 @@ DICT_KEY = {pygame.K_UP: UP,
 class GameObject:
     """Базовый класс игровых объектов"""
 
-    body_color = BOARD_BACKGROUND_COLOR
-
     def __init__(self):
+        self.body_color = BOARD_BACKGROUND_COLOR
         self.position = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
 
     def draw(self):
@@ -62,29 +61,29 @@ class GameObject:
             f'draw() method not defined in {self.__class__.__name__}'
         )
 
-    def draw_rect(self, surface):
+    def draw_rect(self, surface, position,
+                  rect_color=BOARD_BACKGROUND_COLOR,
+                  rect_border=BOARD_BACKGROUND_COLOR):
         """Базовый метод рисования объекта для дочерних классов"""
         rect = pygame.Rect(
-            (self.position[0], self.position[1]),
+            (position[0], position[1]),
             (GRID_SIZE, GRID_SIZE)
         )
-        pygame.draw.rect(surface, self.body_color, rect)
-        pygame.draw.rect(surface, BORDER_COLOR, rect, 1)
+        pygame.draw.rect(surface, rect_color, rect)
+        pygame.draw.rect(surface, rect_border, rect, 1)
 
 
 class Apple(GameObject):
     """Класс Apple"""
 
-    body_color = APPLE_COLOR
-
     def __init__(self):
         super().__init__()
-        self.body_color = Apple.body_color
+        self.body_color = APPLE_COLOR
         self.position = self.randomize_position()
 
     def draw(self, surface):
         """Рисование объекта Apple"""
-        self.draw_rect(surface)
+        self.draw_rect(surface, self.position, self.body_color, BORDER_COLOR)
 
     def randomize_position(self):
         """Получение случайных координат, упакованных в кортеж для Apple"""
@@ -96,8 +95,6 @@ class Apple(GameObject):
 class Snake(GameObject):
     """Управляемый игроком объект Snake"""
 
-    body_color = SNAKE_COLOR
-
     def __init__(self, length=1, direction=RIGHT, next_direction=RIGHT):
         super().__init__()
         self.length = length
@@ -105,19 +102,16 @@ class Snake(GameObject):
         self.last = None
         self.direction = direction
         self.next_direction = next_direction
-        self.body_color = Snake.body_color
+        self.body_color = SNAKE_COLOR
 
     def draw(self, surface):
         """Рисование объекта Snake"""
         for self.position in self.positions:
-            self.draw_rect(surface)
+            self.draw_rect(surface, self.position,
+                           self.body_color, BORDER_COLOR)
         # Затирание последнего сегмента
         if self.last:
-            last_rect = pygame.Rect(
-                (self.last[0], self.last[1]),
-                (GRID_SIZE, GRID_SIZE)
-            )
-            pygame.draw.rect(surface, BOARD_BACKGROUND_COLOR, last_rect)
+            self.draw_rect(surface, self.last)
 
     def move(self):
         """Перемещение объекта Snake"""
