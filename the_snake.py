@@ -84,7 +84,7 @@ class Apple(GameObject):
 
     def draw(self, surface):
         """Рисование объекта Apple"""
-        super().draw_rect(surface)
+        self.draw_rect(surface)
 
     def randomize_position(self):
         """Получение случайных координат, упакованных в кортеж для Apple"""
@@ -110,7 +110,7 @@ class Snake(GameObject):
     def draw(self, surface):
         """Рисование объекта Snake"""
         for self.position in self.positions:
-            super().draw_rect(surface)
+            self.draw_rect(surface)
         # Затирание последнего сегмента
         if self.last:
             last_rect = pygame.Rect(
@@ -176,11 +176,13 @@ def handle_keys(game_object):
         elif event.type == pygame.KEYDOWN:
             # Проверка условия нажата ли кнопка изменения направления
             if event.key in DICT_KEY:
-                # Проверка на попытку разворота на 180
-                for i, k in zip(DICT_KEY.get(event.key),
-                                game_object.direction):
+                # dx, dy приращение координат для x, y соответственно
+                # если сумма приращений предыдущего и следующего напралений
+                # равна false, то обнаружена попытка разворота на 180
+                for dx, dy in zip(DICT_KEY.get(event.key),
+                                  game_object.direction):
                     game_object.next_direction = (
-                        DICT_KEY.get(event.key) if (i + k) else None)
+                        DICT_KEY.get(event.key) if (dx + dy) else None)
             # Изменение скорости змейки при нажатии кнопок + / -
             elif event.key == pygame.K_MINUS and SPEED > 1:
                 SPEED -= 1
